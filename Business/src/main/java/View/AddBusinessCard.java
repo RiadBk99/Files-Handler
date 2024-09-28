@@ -39,10 +39,6 @@ public class AddBusinessCard extends JPanel {
 		
 		this.parentFrame = frame;
 
-		if(Admin.activeBusiness==null) {
-			Admin.showMsg(new Admin(),"Please select a business", "Error",JOptionPane.ERROR_MESSAGE);
-			return;
-		}
 
 		setLayout(null);
 		setBackground(SystemColor.activeCaption);
@@ -111,9 +107,23 @@ public class AddBusinessCard extends JPanel {
 	
 	private void addBusiness() {
 
-		int number = Integer.parseInt(numberTextField.getText());
+		String s1 = numberTextField.getText();
+		String s2 = idTextField.getText();
+		int number;
+		int id;
+
+		if(s1.isBlank())
+			number = 0;
+		else
+			number = Integer.parseInt(numberTextField.getText());
+		
+		if(s2.isBlank())
+			id = 0;
+		else
+			id = Integer.parseInt(idTextField.getText());
+
+			
 		String name = nameTextField.getText();
-		int id = Integer.parseInt(idTextField.getText());
 		CardTypes type = (CardTypes)typeComboBox.getSelectedItem();
 
 

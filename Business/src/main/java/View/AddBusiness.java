@@ -95,9 +95,23 @@ public class AddBusiness extends JPanel {
 	
 	private void addBusiness() {
 
-		int number = Integer.parseInt(numberTextField.getText());
+		String s1 = numberTextField.getText();
+		String s2 = idTextField.getText();
+		int number;
+		int id;
+
+		if(s1.isBlank())
+			number = 0;
+		else
+			number = Integer.parseInt(numberTextField.getText());
+		
+		if(s2.isBlank())
+			id = 0;
+		else
+			id = Integer.parseInt(idTextField.getText());
+		
 		String name = nameTextField.getText();
-		int id = Integer.parseInt(idTextField.getText());
+
 
 		if(Control.getInstance().addBusiness(new MainBusiness(number, name, id))) {
 			Admin.showMsg(doneButton,"Card added Sucessfully", "Success",JOptionPane.INFORMATION_MESSAGE);

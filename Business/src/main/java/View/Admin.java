@@ -119,6 +119,8 @@ public class Admin extends JFrame {
 	            p = new AddFiles(this);
 	            break;
 	        case "Add Business Card":
+	        	if(activeBusiness==null)
+	        		break;
 	            p = new AddBusinessCard(this);
 	            break;
 	        case "Main menu":
