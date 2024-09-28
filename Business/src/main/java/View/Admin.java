@@ -48,6 +48,8 @@ public class Admin extends JFrame {
 	private JList<MainBusiness> list;
     private DefaultListModel<MainBusiness> listModelMainBusinesses;
     private JMenuItem mntmNewMenuItem_3;
+    private JLabel lblNewLabel;
+    private JButton btnNewButton_1;
     
 	/**
 	 * Launch the application.
@@ -95,6 +97,15 @@ public class Admin extends JFrame {
 		});
 		contentPane.add(list);
 		
+		lblNewLabel = new JLabel("Select Business to proceed :");
+		lblNewLabel.setBounds(125, 51, 208, 14);
+		contentPane.add(lblNewLabel);
+		
+		btnNewButton_1 = new JButton("New Business");
+		btnNewButton_1.addActionListener(e -> openPanel("Add Business"));
+		btnNewButton_1.setBounds(324, 47, 118, 23);
+		contentPane.add(btnNewButton_1);
+		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
@@ -139,6 +150,9 @@ public class Admin extends JFrame {
 	            break;
 	        case "Main menu":
 	            p = contentPane;
+	            break;
+	        case "Add Business":
+	            p = new AddBusiness();
 	            break;
 	    }
 

@@ -9,6 +9,7 @@ import javax.swing.JTextField;
 import javax.swing.text.PlainDocument;
 
 import Classes.BasicCard;
+import Classes.MainBusiness;
 import Enums.CardTypes;
 import Model.Control;
 import ViewHelper.CustomButton;
@@ -19,7 +20,7 @@ import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 
-public class AddBusinessCard extends JPanel {
+public class AddBusiness extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField numberTextField;
@@ -27,16 +28,12 @@ public class AddBusinessCard extends JPanel {
 	private JTextField idTextField;
 	private JButton doneButton;
 	private JComboBox<CardTypes> typeComboBox;
-	private static int cardNumber=1;
+	private static int businessNumber=1;
 
 	/**
 	 * Create the panel.
 	 */
-	public AddBusinessCard() {
-		if(Admin.activeBusiness==null) {
-			Admin.showMsg(new Admin(),"Please select a business", "Error",JOptionPane.ERROR_MESSAGE);
-			return;
-		}
+	public AddBusiness() {
 
 		setLayout(null);
 		setBackground(SystemColor.activeCaption);
@@ -52,10 +49,10 @@ public class AddBusinessCard extends JPanel {
 		add(numberTextField);
 		numberTextField.setColumns(10);
 		while(numberTextField.getText().isBlank()) {
-			if(Control.getInstance().getAllBusinesses().containsKey(cardNumber)) {
-				cardNumber++;
+			if(Control.getInstance().getAllBusinesses().containsKey(businessNumber)) {
+				businessNumber++;
 			} else {
-				numberTextField.setText(String.valueOf(cardNumber));
+				numberTextField.setText(String.valueOf(businessNumber));
 			}
 		}
 		
@@ -85,19 +82,7 @@ public class AddBusinessCard extends JPanel {
 		doneButton.addActionListener(e -> addBusiness());
 		add(doneButton);
 		
-		JLabel lblNewLabel_1_1_1 = new JLabel("Type");
-		lblNewLabel_1_1_1.setBounds(10, 116, 121, 14);
-		add(lblNewLabel_1_1_1);
-		
-		typeComboBox = new JComboBox<>();
-		typeComboBox.setBounds(141, 116, 96, 22);
-		for(CardTypes type : CardTypes.values()) {
-			if(type!=null) {
-				typeComboBox.addItem(type);
-			}
-		}		add(typeComboBox);
-		
-		JLabel lblFillTheDetails = new JLabel("Fill the details about the new Card :");
+		JLabel lblFillTheDetails = new JLabel("Fill the details about the new Business :");
 		lblFillTheDetails.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblFillTheDetails.setBounds(10, 17, 264, 14);
 		add(lblFillTheDetails);
@@ -108,10 +93,8 @@ public class AddBusinessCard extends JPanel {
 		int number = Integer.parseInt(numberTextField.getText());
 		String name = nameTextField.getText();
 		int id = Integer.parseInt(idTextField.getText());
-		CardTypes type = (CardTypes)typeComboBox.getSelectedItem();
 
-
-		if(Admin.activeBusiness.addBusinessCard(new BasicCard(number, name, id, type))) {
+		if(Control.getInstance().addBusiness(new MainBusiness(number, name, id))) {
 			Admin.showMsg(doneButton,"Card added Sucessfully", "Success",JOptionPane.INFORMATION_MESSAGE);
 			resetFields();
 		}
@@ -124,10 +107,10 @@ public class AddBusinessCard extends JPanel {
 	private void resetFields() {
 		numberTextField.setText("-1");
 		while(numberTextField.getText().equals("-1")) {
-			if(Control.getInstance().getAllBusinesses().containsKey(cardNumber)) {
-				cardNumber++;
+			if(Control.getInstance().getAllBusinesses().containsKey(businessNumber)) {
+				businessNumber++;
 			} else {
-				numberTextField.setText(String.valueOf(cardNumber));
+				numberTextField.setText(String.valueOf(businessNumber));
 			}
 		}
 		nameTextField.setText("");
