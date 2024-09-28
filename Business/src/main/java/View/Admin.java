@@ -36,20 +36,15 @@ public class Admin extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JComboBox<MainBusiness> comboBox;
-	private JComboBox<CardTypes> comboBox_1;
-	private JButton btnConfirm;
-	private JButton btnNewButton;
+
+
 	private JMenuItem mntmNewMenuItem;
 	private JMenuItem mntmNewMenuItem_1;
 	private JMenu navigateMenu;
 	private JMenuItem mntmNewMenuItem_2;
 	public static MainBusiness activeBusiness;
-	private JList<MainBusiness> list;
-    private DefaultListModel<MainBusiness> listModelMainBusinesses;
     private JMenuItem mntmNewMenuItem_3;
-    private JLabel lblNewLabel;
-    private JButton btnNewButton_1;
+
     
 	/**
 	 * Launch the application.
@@ -83,28 +78,6 @@ public class Admin extends JFrame {
 
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
-		listModelMainBusinesses = new DefaultListModel<>();
-        for(MainBusiness m : Control.getInstance().getAllBusinesses().values()) {
-        	listModelMainBusinesses.addElement(m);
-        			}
-        
-		list = new JList<>();
-		list.setBounds(125, 76, 317, 165);
-		list.setModel(listModelMainBusinesses);
-		list.addListSelectionListener(e -> {
-			activeBusiness = list.getSelectedValue();
-		});
-		contentPane.add(list);
-		
-		lblNewLabel = new JLabel("Select Business to proceed :");
-		lblNewLabel.setBounds(125, 51, 208, 14);
-		contentPane.add(lblNewLabel);
-		
-		btnNewButton_1 = new JButton("New Business");
-		btnNewButton_1.addActionListener(e -> openPanel("Add Business"));
-		btnNewButton_1.setBounds(324, 47, 118, 23);
-		contentPane.add(btnNewButton_1);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -140,19 +113,19 @@ public class Admin extends JFrame {
 
 	    switch(panelName) {
 	        case "Factory":
-	            p = new Factory();
+	            p = new Factory(this);
 	            break;
 	        case "Add Files":
-	            p = new AddFiles();
+	            p = new AddFiles(this);
 	            break;
 	        case "Add Business Card":
-	            p = new AddBusinessCard();
+	            p = new AddBusinessCard(this);
 	            break;
 	        case "Main menu":
-	            p = contentPane;
+	            p = new MainPage(this);
 	            break;
 	        case "Add Business":
-	            p = new AddBusiness();
+	            p = new AddBusiness(this);
 	            break;
 	    }
 

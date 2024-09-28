@@ -17,6 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import java.awt.Graphics;
@@ -78,12 +79,17 @@ public class Factory extends JPanel {
     private JLabel fileNameLabel_2;
     private JInternalFrame testFrame;
     private JComboBox<BasicCard> comboBox;
+	private JFrame parentFrame;
+
     
     
 	/**
 	 * Create the panel.
 	 */
-	public Factory() {
+	public Factory(JFrame frame) {
+
+		this.parentFrame = frame;
+
 		setBackground(SystemColor.activeCaption);
 		setLayout(null);
 		previousFiles = new Stack<>();

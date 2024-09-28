@@ -19,6 +19,7 @@ import View.Admin;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 
 public class AddBusiness extends JPanel {
 
@@ -29,11 +30,15 @@ public class AddBusiness extends JPanel {
 	private JButton doneButton;
 	private JComboBox<CardTypes> typeComboBox;
 	private static int businessNumber=1;
+	private JFrame parentFrame;
+
 
 	/**
 	 * Create the panel.
 	 */
-	public AddBusiness() {
+	public AddBusiness(JFrame frame) {
+
+		this.parentFrame = frame;
 
 		setLayout(null);
 		setBackground(SystemColor.activeCaption);

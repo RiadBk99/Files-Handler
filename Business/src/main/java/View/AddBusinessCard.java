@@ -18,6 +18,7 @@ import View.Admin;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 
 public class AddBusinessCard extends JPanel {
 
@@ -28,11 +29,16 @@ public class AddBusinessCard extends JPanel {
 	private JButton doneButton;
 	private JComboBox<CardTypes> typeComboBox;
 	private static int cardNumber=1;
+	private JFrame parentFrame;
+
 
 	/**
 	 * Create the panel.
 	 */
-	public AddBusinessCard() {
+	public AddBusinessCard(JFrame frame) {
+		
+		this.parentFrame = frame;
+
 		if(Admin.activeBusiness==null) {
 			Admin.showMsg(new Admin(),"Please select a business", "Error",JOptionPane.ERROR_MESSAGE);
 			return;

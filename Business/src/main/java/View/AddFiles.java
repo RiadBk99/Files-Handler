@@ -16,6 +16,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
@@ -25,6 +26,7 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import Classes.BasicBusiness;
+import Classes.MainBusiness;
 import Model.Control;
 import javax.swing.JLabel;
 
@@ -32,15 +34,20 @@ public class AddFiles extends JPanel {
 	
 	private JButton singleFileUpload;
     private JButton wholeFolderUpload;
-	private JComboBox<BasicBusiness> businessComboBox;
+	private JComboBox<MainBusiness> businessComboBox;
     private ArrayList<File> currentBusinessFiles;
-    private BasicBusiness currentBusiness;
+    private MainBusiness currentBusiness;
 	private static final long serialVersionUID = 1L;
+	private JFrame parentFrame;
+
 
 	/**
 	 * Create the panel.
 	 */
-	public AddFiles() {
+	public AddFiles(JFrame frame) {
+
+		this.parentFrame = frame;
+
 		setLayout(null);
 		setBackground(SystemColor.activeCaption);
 		
@@ -51,7 +58,7 @@ public class AddFiles extends JPanel {
 		// combobox with all avaliable businesses
 		businessComboBox = new JComboBox<>();
 		businessComboBox.setBounds(128, 11, 137, 22);
-		for(BasicBusiness business : Control.getInstance().getAllBusinesses().values())
+		for(MainBusiness business : Control.getInstance().getAllBusinesses().values())
 			if(business!=null)
 				businessComboBox.addItem(business);		
 		add(businessComboBox);
@@ -86,7 +93,7 @@ public class AddFiles extends JPanel {
 	
 	// update business variables
 	private void initiate() { 
-		currentBusiness = (BasicBusiness)businessComboBox.getSelectedItem();
+		currentBusiness = (MainBusiness)businessComboBox.getSelectedItem();
 		if(currentBusiness!=null) 
 			currentBusinessFiles = currentBusiness.getBusinessFiles().getNotReady();
 		
