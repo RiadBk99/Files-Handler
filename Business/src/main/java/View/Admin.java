@@ -44,6 +44,7 @@ public class Admin extends JFrame {
 	private JMenuItem mntmNewMenuItem_2;
 	public static MainBusiness activeBusiness;
     private JMenuItem mntmNewMenuItem_3;
+    private JMenuItem mntmNewMenuItem_4;
 
     
 	/**
@@ -103,6 +104,10 @@ public class Admin extends JFrame {
 		mntmNewMenuItem_2.addActionListener(e -> openPanel(mntmNewMenuItem_2.getText()));
 		navigateMenu.add(mntmNewMenuItem_2);
 		
+		mntmNewMenuItem_4 = new JMenuItem("Business Files");
+		mntmNewMenuItem_4.addActionListener(e -> openPanel(mntmNewMenuItem_4.getText()));
+		navigateMenu.add(mntmNewMenuItem_4);
+		
 
 	}
 
@@ -119,8 +124,10 @@ public class Admin extends JFrame {
 	            p = new AddFiles(this);
 	            break;
 	        case "Add Business Card":
-	        	if(activeBusiness==null)
+	        	if(activeBusiness==null) {
+	    			Admin.showMsg(this,"Please select a business first", "Error",JOptionPane.ERROR_MESSAGE);
 	        		break;
+	        	}
 	            p = new AddBusinessCard(this);
 	            break;
 	        case "Main menu":
@@ -128,6 +135,9 @@ public class Admin extends JFrame {
 	            break;
 	        case "Add Business":
 	            p = new AddBusiness(this);
+	            break;
+	        case "Business Files":
+	            p = new BusinessFiles(this);
 	            break;
 	    }
 
