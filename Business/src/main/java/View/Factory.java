@@ -78,8 +78,9 @@ public class Factory extends JPanel {
     private JLabel fileNameLabel;
     private JLabel fileNameLabel_2;
     private JInternalFrame testFrame;
-    private JComboBox<BasicCard> comboBox;
+    private JComboBox<BasicCard> businessCardsComboBox;
 	private JFrame parentFrame;
+	private BasicCard currentBusinessCard;
 
     
     
@@ -192,17 +193,7 @@ public class Factory extends JPanel {
         // button to move file from not ready to ready storage
         doneButton = new CustomButton("Done",150,50,40);
         doneButton.setBounds(99, 207, 89, 23);
-        doneButton.addActionListener(e -> {
-        	if(currentFile!=null) {
-	        	currentBusiness.getBusinessFiles().getReady().add(currentFile);
-	        	if(currentBusinessFiles.size()-1>=currentIndex)
-	        		currentBusinessFiles.remove(currentIndex);
-	        	previousFiles.push(currentFile);
-	        	if(currentBusinessFiles.isEmpty())
-	        		labelFileDisplay.setIcon(null);
-	        	else initiate();
-        	}
-        });        
+        doneButton.addActionListener(e -> addFileToCard());
         add(doneButton);
         
         undoButton = new CustomButton("Undo",150,50,40);
@@ -215,6 +206,10 @@ public class Factory extends JPanel {
 
                 // Add the file back to the current business files list
                 currentBusinessFiles.add(currentIndex, lastRemovedFile);
+                
+                // Remove the file from the card
+                if(currentBusinessCard!=null)
+                	currentBusinessCard.getBusinessFiles().getReady().remove(lastRemovedFile);
 
                 // Update the display
                 currentFile = lastRemovedFile;
@@ -232,9 +227,9 @@ public class Factory extends JPanel {
         testFrame.setVisible(true);  // Make sure the internal frame is visible
         add(testFrame);
         
-        comboBox = new JComboBox();
-        comboBox.setBounds(20, 104, 245, 22);
-        add(comboBox);
+        businessCardsComboBox = new JComboBox<>();
+        businessCardsComboBox.setBounds(20, 104, 245, 22);
+        add(businessCardsComboBox);
         
         JLabel lblChooseCard = new JLabel("Choose Card :");
         lblChooseCard.setBounds(20, 83, 115, 14);
@@ -249,9 +244,9 @@ public class Factory extends JPanel {
 		currentBusiness = (MainBusiness)businessComboBox.getSelectedItem();
 		
 		if(currentBusiness!=null) {
-			comboBox.removeAll();
+			businessCardsComboBox.removeAllItems();
 			for(BasicCard card : currentBusiness.getBusinessCards().values()) {
-				comboBox.addItem(card);
+				businessCardsComboBox.addItem(card);
 			}
 			currentBusinessFiles = currentBusiness.getBusinessFiles().getNotReady();
 			currentIndex = 0;
@@ -263,6 +258,24 @@ public class Factory extends JPanel {
 		}else labelFileDisplay.setText("NO FILES AVIALABLE");
 	}
 	
+	
+	private void addFileToCard() {
+		
+		if(businessCardsComboBox.getItemCount()>0)
+			currentBusinessCard = (BasicCard)businessCardsComboBox.getSelectedItem();
+		else
+			currentBusinessCard = null;
+
+        if(currentFile!=null && currentBusinessCard!=null) {
+        	currentBusinessCard.getBusinessFiles().getReady().add(currentFile);
+	       	if(currentBusinessFiles.size()-1>=currentIndex)
+	       		currentBusinessFiles.remove(currentIndex);
+	       	previousFiles.push(currentFile);
+	       	if(currentBusinessFiles.isEmpty())
+	       		labelFileDisplay.setIcon(null);
+	       	else initiate();
+       	}
+	}
 	
 	
 	private void showNextFile() {
