@@ -1,6 +1,8 @@
 package View;
 
 import java.awt.SystemColor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -18,7 +20,8 @@ public class MainPage extends JPanel {
 
 	private static final long serialVersionUID = 1L;
     private JLabel lblNewLabel;
-    private JButton btnNewButton_1;
+    private JButton newBusinessButton;
+    private JButton enterButton;
 	private JList<MainBusiness> list;
     private DefaultListModel<MainBusiness> listModelMainBusinesses;
 	private JButton btnConfirm;
@@ -50,25 +53,46 @@ public class MainPage extends JPanel {
 		list.addListSelectionListener(e -> {
 			Admin.activeBusiness = list.getSelectedValue();
 		});
+		list.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent me) {
+				if(me.getClickCount()==2) {
+					JPanel p = new BusinessFiles(parentFrame);
+					parentFrame.setContentPane(p);
+					parentFrame.getContentPane().setVisible(true);
+					parentFrame.repaint();
+					parentFrame.revalidate();
+				}
+			}
+		});
 		add(list);
 		
 		lblNewLabel = new JLabel("Select Business to proceed :");
 		lblNewLabel.setBounds(125, 51, 208, 14);
 		add(lblNewLabel);
 		
-		btnNewButton_1 = new JButton("New Business");
-		btnNewButton_1.addActionListener(e -> {		
-			JPanel p = new AddBusiness(frame);
-		    frame.setContentPane(p);
-		    frame.getContentPane().setVisible(true);
-		    frame.repaint();
-		    frame.revalidate();
+		newBusinessButton = new JButton("New Business");
+		newBusinessButton.addActionListener(e -> {		
+			JPanel p = new AddBusiness(parentFrame);
+			parentFrame.setContentPane(p);
+			parentFrame.getContentPane().setVisible(true);
+			parentFrame.repaint();
+			parentFrame.revalidate();
 			
 			});
-		btnNewButton_1.setBounds(324, 47, 118, 23);
-		add(btnNewButton_1);
+		newBusinessButton.setBounds(452, 104, 118, 23);
+		add(newBusinessButton);
+		
+		enterButton = new JButton("Enter");
+		enterButton.addActionListener(e -> {
+			if(list.getSelectedValue()!=null) {
+				JPanel p = new BusinessFiles(parentFrame);
+				parentFrame.setContentPane(p);
+				parentFrame.getContentPane().setVisible(true);
+				parentFrame.repaint();
+				parentFrame.revalidate();
+			}
+		});
+		enterButton.setBounds(452, 73, 118, 23);
+		add(enterButton);
 	}
-	
-
-
 }
