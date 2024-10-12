@@ -47,7 +47,7 @@ public class BusinessFiles extends JPanel {
     private MainBusiness currentBusiness = Admin.activeBusiness;
     private File currentFile; 
     private ArrayList<File> currentBusinessFiles;
-    private JInternalFrame testFrame;
+    private JInternalFrame displayJframe;
     private JLabel labelFileDisplay;
     private BufferedImage originalImage;
     private JLabel fileNameLabel;
@@ -103,14 +103,14 @@ public class BusinessFiles extends JPanel {
 		scrollPane.add(labelFileDisplay);
 		
 		
-        testFrame = new JInternalFrame();
-        testFrame.setResizable(true);
-        testFrame.setFrameIcon(null);
-        testFrame.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-        testFrame.setBounds(319,10,408,384);
-        testFrame.getContentPane().add(scrollPane);
-        testFrame.setVisible(true);  // Make sure the internal frame is visible
-        add(testFrame);
+        displayJframe = new JInternalFrame();
+        displayJframe.setResizable(true);
+        displayJframe.setFrameIcon(null);
+        displayJframe.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+        displayJframe.setBounds(319,10,408,384);
+        displayJframe.getContentPane().add(scrollPane);
+        displayJframe.setVisible(true);  // Make sure the internal frame is visible
+        add(displayJframe);
         
         // adjust display size
         zoomSlider = new JSlider(0, 200, 100); // Zoom range from 10% to 200%
@@ -135,6 +135,8 @@ public class BusinessFiles extends JPanel {
         
 		list = new JList<>();
 		list.setBounds(10, 77, 224, 161);
+		listModelCardFiles  = new DefaultListModel<>();
+		list.setModel(listModelCardFiles);;
 		list.addListSelectionListener(e -> displayFile());
 		add(list);
         
@@ -156,15 +158,14 @@ public class BusinessFiles extends JPanel {
 			else
 				currentBusinessFiles = new ArrayList<>();
 			
-			listModelCardFiles  = new DefaultListModel<>();
 			listModelCardFiles.removeAllElements();
 			if(currentBusinessFiles.isEmpty()==false) {
 		        for(File f : currentBusinessFiles) {
 		        	if(f!=null)
 		        		listModelCardFiles.addElement(f);
 		        	}
+		        list.setSelectedIndex(0);
 			}
-			list.setModel(listModelCardFiles);
 
 		}
 	}
@@ -221,9 +222,13 @@ public class BusinessFiles extends JPanel {
     }
     
     private void displayFile() {
+    	if(listModelCardFiles.getSize() > 0) {
     		currentFile = list.getSelectedValue();
-			testFrame.setTitle(currentFile.getName());
-			loadAndRenderFile(currentFile);
-			}
+    		if(currentFile!=null) {
+    			displayJframe.setTitle(currentFile.getName());
+    			loadAndRenderFile(currentFile);
+    		}
+    	}
+	}
     
 }
