@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import java.awt.Color;
 
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 import java.awt.SystemColor;
@@ -68,6 +69,10 @@ public class Admin extends JFrame {
 	 */
 	public Admin() {
 		
+		setTitle("MyBusiness");
+        ImageIcon icon = new ImageIcon(getClass().getResource("/MyBusiness_icon2.png"));
+        setIconImage(icon.getImage());
+        
 		getContentPane().setLayout(null);
 		setBackground(SystemColor.activeCaption);
 		
