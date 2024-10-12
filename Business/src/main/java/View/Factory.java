@@ -261,19 +261,32 @@ public class Factory extends JPanel {
 	
 	private void addFileToCard() {
 		
+	    // Check if any business card is selected in the combo box
 		if(businessCardsComboBox.getItemCount()>0)
 			currentBusinessCard = (BasicCard)businessCardsComboBox.getSelectedItem();
 		else
 			currentBusinessCard = null;
 
-        if(currentFile!=null && currentBusinessCard!=null) {
+	    // Proceed only if both the current file and business card are valid and there are new files left
+        if(currentFile!=null && currentBusinessCard!=null && currentBusinessFiles.isEmpty()!= true) {
+        	
+            // Add the current file to the 'ready' files list of the business card
         	currentBusinessCard.getBusinessFiles().getReady().add(currentFile);
+        	
+            // Remove the file from the current business file list if index is valid
 	       	if(currentBusinessFiles.size()-1>=currentIndex)
 	       		currentBusinessFiles.remove(currentIndex);
+	       	
+	        // Push the current file to the previousFiles stack
 	       	previousFiles.push(currentFile);
+	       	
+	        // If the current business files are empty, clear the file display icon
 	       	if(currentBusinessFiles.isEmpty())
 	       		labelFileDisplay.setIcon(null);
-	       	else initiate();
+	       	
+            // Reinitialize the display if there are still files left
+	       	else 
+	       		initiate();
        	}
 	}
 	
