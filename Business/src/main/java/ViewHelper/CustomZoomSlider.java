@@ -18,7 +18,7 @@ public class CustomZoomSlider extends BasicSliderUI {
 	    public void paintThumb(Graphics g) {
 	        Graphics2D g2d = (Graphics2D) g;
 	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	        g2d.setColor(Color.GRAY); // Soft blue
+	        g2d.setColor(new Color(58, 134, 255)); // Soft blue
 	        g2d.fillOval(thumbRect.x, thumbRect.y, thumbRect.width, thumbRect.height);  // A rounded thumb
 	    }
 
@@ -26,7 +26,7 @@ public class CustomZoomSlider extends BasicSliderUI {
 	    public void paintTrack(Graphics g) {
 	        Graphics2D g2d = (Graphics2D) g;
 	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	        g2d.setColor(Color.LIGHT_GRAY);  // Custom track color
+	        g2d.setColor(Color.white);  // Custom track color
 
 	        // Track background
 	        g2d.fillRoundRect(trackRect.x, trackRect.y + (trackRect.height / 2) - 4, trackRect.width, 8, 10, 10);

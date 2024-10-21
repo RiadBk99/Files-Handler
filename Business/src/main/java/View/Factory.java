@@ -22,6 +22,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.RenderingHints;
@@ -56,6 +57,9 @@ import javax.swing.JButton;
 import javax.swing.border.BevelBorder;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.BorderLayout;
+import javax.swing.BoxLayout;
+import javax.swing.SwingConstants;
 
 public class Factory extends JPanel {
 
@@ -72,6 +76,7 @@ public class Factory extends JPanel {
     private MainBusiness currentBusiness;
     private int currentIndex;
     private JButton undoButton;
+    private JButton rotateButton;
     private BasicArrowButton rightArrowButton;
     private BasicArrowButton leftArrowButton_1;
     private Stack<File>previousFiles;
@@ -81,6 +86,7 @@ public class Factory extends JPanel {
     private JComboBox<BasicCard> businessCardsComboBox;
 	private JFrame parentFrame;
 	private BasicCard currentBusinessCard;
+	private double rot = 0.0;
 
     
     
@@ -88,6 +94,7 @@ public class Factory extends JPanel {
 	 * Create the panel.
 	 */
 	public Factory(JFrame frame) {
+		setAlignmentY(Component.TOP_ALIGNMENT);
 
 		this.parentFrame = frame;
 
@@ -114,37 +121,38 @@ public class Factory extends JPanel {
 		// change business according to selection on Combobox and update current business files variables
 		businessComboBox.addActionListener(e -> initiate());
 				
-		// buttons to go through all the business files
-		rightArrowButton = new CustomArrowButton(0,150,50,40);
-		rightArrowButton.setDirection(3);
-		rightArrowButton.setBounds(206, 207, 59, 54);
-		
-		rightArrowButton.addActionListener(e -> showNextFile());
-		rightArrowButton.addKeyListener(new KeyAdapter() {
-		    public void keyPressed(KeyEvent e) {
-		        if (e.getKeyCode() == KeyEvent.VK_RIGHT) showNextFile();
-		    }
-		});	
-		
-		rightArrowButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "Next File");
-		rightArrowButton.getActionMap().put("Next File", new AbstractAction() {
-		    /**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
+        // label to display the file
+        labelFileDisplay = new JLabel("");
+        labelFileDisplay.setHorizontalAlignment(JLabel.CENTER);
+        labelFileDisplay.setBounds(335, 10, 566, 534);
 
-			@Override
-		    public void actionPerformed(ActionEvent e) {
-		        showNextFile();
-		    }
-		});
-		add(rightArrowButton);
+		// scrollpane to view file properly
+		scrollPane = new ScrollPane();
+		scrollPane.setBounds(335, 10, 566, 534);
+		scrollPane.add(labelFileDisplay);
+		
+		// jframe to hold the label, more flexibilty for view and resizing
+        testFrame = new JInternalFrame();
+        testFrame.setBackground(SystemColor.activeCaption);
+        testFrame.setResizable(true);
+        testFrame.setFrameIcon(null);
+        testFrame.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+        testFrame.setBounds(319,10,566,401);
+        testFrame.getContentPane().setLayout(new BorderLayout());
+        testFrame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        testFrame.setVisible(true);  // Make sure the internal frame is visible
+        add(testFrame);
+        
+        JPanel p = new JPanel();
+        p.setBackground(SystemColor.activeCaption);
+        testFrame.getContentPane().add(p, BorderLayout.SOUTH);
+        
+		// buttons to go through all the business files
 		
 		leftArrowButton_1 = new CustomArrowButton(0,150,50,40);
 		leftArrowButton_1.setDirection(7);
-		leftArrowButton_1.setBounds(20, 207, 59, 54);
 		leftArrowButton_1.addActionListener(e -> showPreviousFile());
-		leftArrowButton_1.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "Previous File");
+		leftArrowButton_1.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "Previous File");
 		leftArrowButton_1.getActionMap().put("Previous File", new AbstractAction() {
 		    /**
 			 * 
@@ -156,22 +164,36 @@ public class Factory extends JPanel {
 		        showPreviousFile();
 		    }
 		});
-		add(leftArrowButton_1);
+		p.setLayout(new GridLayout());
+		p.add(leftArrowButton_1);
 		
+		rightArrowButton = new CustomArrowButton(0,150,50,40);
+		rightArrowButton.setDirection(3);
+		rightArrowButton.addActionListener(e -> showNextFile());
+		rightArrowButton.addKeyListener(new KeyAdapter() {
+		    public void keyPressed(KeyEvent e) {
+		        if (e.getKeyCode() == KeyEvent.VK_RIGHT) showNextFile();
+		    }
+		});	
 		
-		
-        // label to display the file
-        labelFileDisplay = new JLabel("");
-        labelFileDisplay.setHorizontalAlignment(JLabel.CENTER);
-        labelFileDisplay.setBounds(335, 10, 566, 534);
+		rightArrowButton.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "Next File");
+		rightArrowButton.getActionMap().put("Next File", new AbstractAction() {
+		    /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 
-		// scrollpane to view file properly
-		scrollPane = new ScrollPane();
-		scrollPane.setBounds(335, 10, 566, 534);
-		scrollPane.add(labelFileDisplay);
+			@Override
+		    public void actionPerformed(ActionEvent e) {
+		        showNextFile();
+		    }
+		});
+		
+		p.add(rightArrowButton);
 		
         // adjust display size
         zoomSlider = new JSlider(0, 200, 100); // Zoom range from 10% to 200%
+        zoomSlider.setBackground(SystemColor.activeCaption);
         zoomSlider.setMajorTickSpacing(100);
         zoomSlider.setMinorTickSpacing(5);
         zoomSlider.setUI(new CustomZoomSlider(zoomSlider));
@@ -186,18 +208,23 @@ public class Factory extends JPanel {
         zoomSlider.addChangeListener(e ->{
             zoomSlider.setToolTipText(String.valueOf(zoomSlider.getValue()));
         });
-        zoomSlider.setBounds(20, 272, 245, 38);
-        add(zoomSlider); 
+        
+        rotateButton = new CustomButton("Rotate",150,50,40);
+        rotateButton.addActionListener(e -> {
+                    rot += Math.PI / 4;
+                    labelFileDisplay.repaint();
+                });
+                
+        p.add(rotateButton);
+        p.add(zoomSlider); 
         
         
         // button to move file from not ready to ready storage
         doneButton = new CustomButton("Done",150,50,40);
-        doneButton.setBounds(99, 207, 89, 23);
         doneButton.addActionListener(e -> addFileToCard());
-        add(doneButton);
+        p.add(doneButton);
         
         undoButton = new CustomButton("Undo",150,50,40);
-        undoButton.setBounds(99, 238, 89, 23);
         undoButton.addActionListener(e -> {
             // Check if there are any files to undo
             if (!previousFiles.isEmpty()) {
@@ -216,16 +243,9 @@ public class Factory extends JPanel {
                 initiate();
             }
         });
-        add(undoButton);           
+        p.add(undoButton);           
 		        
-        testFrame = new JInternalFrame();
-        testFrame.setResizable(true);
-        testFrame.setFrameIcon(null);
-        testFrame.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-        testFrame.setBounds(319,10,408,384);
-        testFrame.getContentPane().add(scrollPane);
-        testFrame.setVisible(true);  // Make sure the internal frame is visible
-        add(testFrame);
+
         
         businessCardsComboBox = new JComboBox<>();
         businessCardsComboBox.setBounds(20, 104, 245, 22);
@@ -342,7 +362,15 @@ public class Factory extends JPanel {
         		int width = originalImage.getWidth();
         		int height = originalImage.getHeight();
         		labelFileDisplay.setBounds(197, 35, width, height);
-        		labelFileDisplay.setIcon(scaledIcon);
+        		labelFileDisplay = new JLabel(null, scaledIcon, JLabel.CENTER) {
+        			private static final long serialVersionUID = 1L;
+        				@Override
+        	            protected void paintComponent(Graphics g) {
+        	                Graphics2D g2 = (Graphics2D) g;
+        	                g2.rotate(rot, labelFileDisplay.getIcon().getIconWidth() / 2, labelFileDisplay.getIcon().getIconWidth() / 2);
+       		                g2.drawImage(((ImageIcon) labelFileDisplay.getIcon()).getImage(), 0, 0, null);
+       		            }
+       		        };
         		scrollPane.add(labelFileDisplay);
                 resizeImage();
                 scrollPane.repaint();
