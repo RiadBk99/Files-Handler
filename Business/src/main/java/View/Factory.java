@@ -261,7 +261,8 @@ public class Factory extends JPanel {
 				testFrame.setTitle(currentFile.getName());
 				loadAndRenderFile(currentIndex);
 			}
-		}else labelFileDisplay.setText("NO FILES AVIALABLE");
+			else labelFileDisplay.setText("NO FILES AVIALABLE");
+		}
 	}
 	
 	
@@ -274,26 +275,31 @@ public class Factory extends JPanel {
 			currentBusinessCard = null;
 
 	    // Proceed only if both the current file and business card are valid and there are new files left
-        if(currentFile!=null && currentBusinessCard!=null && currentBusinessFiles.isEmpty()!= true) {
+        if(currentFile!=null && currentBusinessCard!=null && !currentBusinessFiles.isEmpty()) {
         	
             // Add the current file to the 'ready' files list of the business card
         	currentBusinessCard.getBusinessFiles().getReady().add(currentFile);
         	
             // Remove the file from the current business file list if index is valid
-	       	if(currentBusinessFiles.size()-1>=currentIndex)
+	       	if(currentBusinessFiles.size()>=currentIndex) {
 	       		currentBusinessFiles.remove(currentIndex);
 	       	
 	        // Push the current file to the previousFiles stack
 	       	previousFiles.push(currentFile);
 	       	
-	        // If the current business files are empty, clear the file display icon
-	       	if(currentBusinessFiles.isEmpty())
-	       		labelFileDisplay.setIcon(null);
+            if (currentIndex >= currentBusinessFiles.size()) {
+                currentIndex = 0; // Reset index to the start if end is reached
+            }
 	       	
-            // Reinitialize the display if there are still files left
-	       	else 
-	       		initiate();
-       	}
+	        // If the current business files are empty, clear the file display icon
+	       	if(currentBusinessFiles.isEmpty()) {
+	       		labelFileDisplay.setIcon(null);
+	       		labelFileDisplay.setText("NO FILES AVAILABLE");
+
+	       	}else 
+	       		initiate();   	
+	       	}
+        }
 	}
 	
 	
@@ -350,8 +356,10 @@ public class Factory extends JPanel {
         				@Override
         	            protected void paintComponent(Graphics g) {
         	                Graphics2D g2 = (Graphics2D) g;
+        	                if (labelFileDisplay.getIcon() != null) {
         	                g2.rotate(rot, labelFileDisplay.getIcon().getIconWidth() / 2, labelFileDisplay.getIcon().getIconWidth() / 2);
        		                g2.drawImage(((ImageIcon) labelFileDisplay.getIcon()).getImage(), 0, 0, null);
+        	                }
        		            }
        		        };
         		scrollPane.add(labelFileDisplay);
