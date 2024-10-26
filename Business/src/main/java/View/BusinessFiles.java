@@ -81,6 +81,16 @@ public class BusinessFiles extends JPanel {
 		
         businessCardComboBox = new JComboBox<>();
         businessCardComboBox.setBounds(83, 24, 151, 22);
+        
+		if(currentBusiness!=null) {
+			for(BasicCard card : currentBusiness.getBusinessCards().values()) {
+				businessCardComboBox.addItem(card);
+			}
+			if(businessCardComboBox.getItemCount()>0)
+				currentBusinessFiles = ((BasicCard)businessCardComboBox.getSelectedItem()).getBusinessFiles().getReady();
+			else
+				currentBusinessFiles = new ArrayList<>();
+		}
         add(businessCardComboBox);   
         
 		businessCardComboBox.addActionListener(e -> initiate());
@@ -131,11 +141,11 @@ public class BusinessFiles extends JPanel {
         zoomSlider.setBounds(10, 271, 224, 38);
         add(zoomSlider); 
         
+		listModelCardFiles  = new DefaultListModel<>();
 
         
 		list = new JList<>();
 		list.setBounds(10, 77, 224, 161);
-		listModelCardFiles  = new DefaultListModel<>();
 		list.setModel(listModelCardFiles);;
 		list.addListSelectionListener(e -> displayFile());
 		add(list);
@@ -145,29 +155,25 @@ public class BusinessFiles extends JPanel {
 	
 	
 	private void initiate() {
-		
-
 		// update business variables according to selected business		
-		if(currentBusiness!=null) {
-			businessCardComboBox.removeAllItems();
-			for(BasicCard card : currentBusiness.getBusinessCards().values()) {
-				businessCardComboBox.addItem(card);
-			}
+			listModelCardFiles.clear();
+			
 			if(businessCardComboBox.getItemCount()>0)
 				currentBusinessFiles = ((BasicCard)businessCardComboBox.getSelectedItem()).getBusinessFiles().getReady();
 			else
 				currentBusinessFiles = new ArrayList<>();
 			
-			listModelCardFiles.removeAllElements();
-			if(currentBusinessFiles.isEmpty()==false) {
+			if(!currentBusinessFiles.isEmpty()) {
 		        for(File f : currentBusinessFiles) {
 		        	if(f!=null)
 		        		listModelCardFiles.addElement(f);
 		        	}
 		        list.setSelectedIndex(0);
+			}else {
+				labelFileDisplay.setIcon(null);
+				displayJframe.setTitle("");
 			}
 
-		}
 	}
 	
     private void loadAndRenderFile(File file) {
@@ -197,7 +203,6 @@ public class BusinessFiles extends JPanel {
     		int height = originalImage.getHeight();
     		labelFileDisplay.setBounds(197, 35, width, height);
     		labelFileDisplay.setIcon(scaledIcon);
-    		scrollPane.add(labelFileDisplay);
             resizeImage();
             scrollPane.repaint();
             scrollPane.revalidate();
