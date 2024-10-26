@@ -131,6 +131,7 @@ public class Admin extends JFrame {
 	        case "Add Business Card":
 	        	if(activeBusiness==null) {
 	    			Admin.showMsg(this,"Please select a business first", "Error",JOptionPane.ERROR_MESSAGE);
+	    			p = new MainPage(this);
 	        		break;
 	        	}
 	            p = new AddBusinessCard(this);

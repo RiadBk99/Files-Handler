@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import Classes.BasicCard;
@@ -114,11 +115,11 @@ public class AddBusiness extends JPanel {
 
 
 		if(Control.getInstance().addBusiness(new MainBusiness(number, name, id))) {
-			Admin.showMsg(doneButton,"Card added Sucessfully", "Success",JOptionPane.INFORMATION_MESSAGE);
+			Admin.showMsg(doneButton,"Business added Sucessfully", "Success",JOptionPane.INFORMATION_MESSAGE);
 			resetFields();
 		}
 		else {
-			Admin.showMsg(doneButton,"Failed to add Card", "Error",JOptionPane.ERROR_MESSAGE);
+			Admin.showMsg(doneButton,"Failed to add Business.", "Error",JOptionPane.ERROR_MESSAGE);
 		}
 		
 	}
@@ -132,7 +133,12 @@ public class AddBusiness extends JPanel {
 				numberTextField.setText(String.valueOf(businessNumber));
 			}
 		}
-		nameTextField.setText("");
-		idTextField.setText("");
+		try{
+			nameTextField.setText("");
+			idTextField.getDocument().remove(0,idTextField.getDocument().getLength());
+			
+		}catch(BadLocationException e) {
+			e.printStackTrace();
+		}
 	}
 }

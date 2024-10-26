@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import Classes.BasicCard;
@@ -54,7 +55,7 @@ public class AddBusinessCard extends JPanel {
 		add(numberTextField);
 		numberTextField.setColumns(10);
 		while(numberTextField.getText().isBlank()) {
-			if(Control.getInstance().getAllBusinesses().containsKey(cardNumber)) {
+			if(Admin.activeBusiness.getBusinessCards().containsKey(cardNumber)) {
 				cardNumber++;
 			} else {
 				numberTextField.setText(String.valueOf(cardNumber));
@@ -128,11 +129,11 @@ public class AddBusinessCard extends JPanel {
 
 
 		if(Admin.activeBusiness.addBusinessCard(new BasicCard(number, name, id, type))) {
-			Admin.showMsg(doneButton,"Card added Sucessfully", "Success",JOptionPane.INFORMATION_MESSAGE);
+			Admin.showMsg(doneButton,"Card added Sucessfully.", "Success",JOptionPane.INFORMATION_MESSAGE);
 			resetFields();
 		}
 		else {
-			Admin.showMsg(doneButton,"Failed to add Card", "Error",JOptionPane.ERROR_MESSAGE);
+			Admin.showMsg(doneButton,"Failed to add Card, Similar card already exists.", "Error",JOptionPane.ERROR_MESSAGE);
 		}
 		
 	}
@@ -140,13 +141,18 @@ public class AddBusinessCard extends JPanel {
 	private void resetFields() {
 		numberTextField.setText("-1");
 		while(numberTextField.getText().equals("-1")) {
-			if(Control.getInstance().getAllBusinesses().containsKey(cardNumber)) {
+			if(Admin.activeBusiness.getBusinessCards().containsKey(cardNumber)) {
 				cardNumber++;
 			} else {
 				numberTextField.setText(String.valueOf(cardNumber));
 			}
 		}
-		nameTextField.setText("");
-		idTextField.setText("");
+		try{
+			nameTextField.setText("");
+			idTextField.getDocument().remove(0,idTextField.getDocument().getLength());
+			
+		}catch(BadLocationException e) {
+			e.printStackTrace();
+		}
 	}
 }
