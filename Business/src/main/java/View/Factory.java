@@ -1,7 +1,6 @@
 package View;
 
 import javax.swing.JPanel;
-
 import Classes.BasicBusiness;
 import Classes.BasicCard;
 import Classes.BusinessStorage;
@@ -10,9 +9,9 @@ import Model.Control;
 import ViewHelper.CustomArrowButton;
 import ViewHelper.CustomButton;
 import ViewHelper.CustomZoomSlider;
-
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -20,6 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -30,6 +30,7 @@ import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -144,6 +145,7 @@ public class Factory extends JPanel {
         add(testFrame);
         
         JPanel p = new JPanel();
+		p.setLayout(new GridLayout());
         p.setBackground(SystemColor.activeCaption);
         testFrame.getContentPane().add(p, BorderLayout.SOUTH);
         
@@ -152,45 +154,24 @@ public class Factory extends JPanel {
 		leftArrowButton_1 = new CustomArrowButton(0,150,50,40);
 		leftArrowButton_1.setDirection(7);
 		leftArrowButton_1.addActionListener(e -> showPreviousFile());
-		leftArrowButton_1.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "Previous File");
-		leftArrowButton_1.getActionMap().put("Previous File", new AbstractAction() {
-		    /**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-		    public void actionPerformed(ActionEvent e) {
-		        showPreviousFile();
-		    }
-		});
-		p.setLayout(new GridLayout());
 		p.add(leftArrowButton_1);
 		
 		rightArrowButton = new CustomArrowButton(0,150,50,40);
 		rightArrowButton.setDirection(3);
 		rightArrowButton.addActionListener(e -> showNextFile());
-		rightArrowButton.addKeyListener(new KeyAdapter() {
-		    public void keyPressed(KeyEvent e) {
-		        if (e.getKeyCode() == KeyEvent.VK_RIGHT) showNextFile();
-		    }
-		});	
-		
-		rightArrowButton.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "Next File");
-		rightArrowButton.getActionMap().put("Next File", new AbstractAction() {
-		    /**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-		    public void actionPerformed(ActionEvent e) {
-		        showNextFile();
-		    }
-		});
-		
 		p.add(rightArrowButton);
 		
+		
+		Action leftAction = new LeftAction();
+		Action rightAction = new RightAction();
+		
+		testFrame.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,0), "leftAction");
+		testFrame.getActionMap().put("leftAction", leftAction);
+		
+		testFrame.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,0), "rightAction");
+		testFrame.getActionMap().put("rightAction", rightAction);
+		
+        
         // adjust display size
         zoomSlider = new JSlider(0, 200, 100); // Zoom range from 10% to 200%
         zoomSlider.setBackground(SystemColor.activeCaption);
@@ -202,6 +183,7 @@ public class Factory extends JPanel {
             zoomFactor = zoomSlider.getValue() / 100.0f; // Update zoom factor
             resizeImage(); // Resize the image based on the new zoom factor
             repaint(); // Repaint the panel
+            testFrame.requestFocus();
         });
         
         // show current zoom value
@@ -224,6 +206,10 @@ public class Factory extends JPanel {
         doneButton.addActionListener(e -> addFileToCard());
         p.add(doneButton);
         
+		Action enterAction = new EnterAction();
+		testFrame.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("ENTER"), "enterAction");
+		testFrame.getActionMap().put("enterAction", enterAction);
+		
         undoButton = new CustomButton("Undo",150,50,40);
         undoButton.addActionListener(e -> {
             // Check if there are any files to undo
@@ -254,7 +240,7 @@ public class Factory extends JPanel {
         JLabel lblChooseCard = new JLabel("Choose Card :");
         lblChooseCard.setBounds(20, 83, 115, 14);
         add(lblChooseCard);
-        
+
         initiate();
 
     }
@@ -312,25 +298,22 @@ public class Factory extends JPanel {
 	
 	
 	private void showNextFile() {
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
-
 		if(currentBusinessFiles!=null)
 			if(currentBusinessFiles.size()-1 > currentIndex) {
 				currentIndex++;
 				loadAndRenderFile(currentIndex);
 			}
-		
+				
 	}
 		
 		
 	private void showPreviousFile() {
 		
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
-
 		if(currentIndex > 0) {
 			currentIndex--;
 			loadAndRenderFile(currentIndex);
 		}
+
 	}
 	
 	
@@ -395,4 +378,33 @@ public class Factory extends JPanel {
 	        labelFileDisplay.setIcon(new ImageIcon(scaledImage)); // Update JLabel with new image
     	}
     }
+
+    
+    public class LeftAction extends AbstractAction{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			showPreviousFile();		
+		}
+    	
+    }
+    public class RightAction extends AbstractAction{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			showNextFile();
+
+		}
+    	
+    }
+    
+    public class EnterAction extends AbstractAction{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			addFileToCard();
+		}
+    	
+    }
+    
 }
