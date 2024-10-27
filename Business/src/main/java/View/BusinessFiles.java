@@ -11,14 +11,19 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -46,26 +51,18 @@ public class BusinessFiles extends JPanel {
     private JComboBox<BasicCard> businessCardComboBox;
     private MainBusiness currentBusiness = Admin.activeBusiness;
     private File currentFile; 
-    private ArrayList<File> currentBusinessFiles;
+    private HashMap<String,ArrayList<File>> currentBusinessFiles;
     private JInternalFrame displayJframe;
     private JLabel labelFileDisplay;
     private BufferedImage originalImage;
     private JLabel fileNameLabel;
     private ScrollPane scrollPane;
+    private ScrollPane treeScrollPane;
+
     private float zoomFactor = 1.0f; // Initial zoom factor
     private JSlider zoomSlider;
-	private JList<File> list;
-    private DefaultListModel<File> listModelCardFiles;
-
-
-
-
-
-
-
-
-
-
+	private JTree tree;
+	private DefaultMutableTreeNode root;
 
 
 
@@ -79,6 +76,7 @@ public class BusinessFiles extends JPanel {
 		setLayout(null);
 		setBackground(SystemColor.activeCaption);
 		
+		// Create combobox with active business's cards
         businessCardComboBox = new JComboBox<>();
         businessCardComboBox.setBounds(83, 24, 151, 22);
         
@@ -89,16 +87,18 @@ public class BusinessFiles extends JPanel {
 			if(businessCardComboBox.getItemCount()>0)
 				currentBusinessFiles = ((BasicCard)businessCardComboBox.getSelectedItem()).getBusinessFiles().getReady();
 			else
-				currentBusinessFiles = new ArrayList<>();
+				currentBusinessFiles = new HashMap<>();
 		}
         add(businessCardComboBox);   
         
+        // Update tree files according to chosing businessCard
 		businessCardComboBox.addActionListener(e -> initiate());
 
 		
 		JLabel lblNewLabel = new JLabel("Select Card :");
 		lblNewLabel.setBounds(10, 28, 112, 14);
 		add(lblNewLabel);
+		
 		
 		fileNameLabel = new JLabel();
 		
@@ -141,39 +141,49 @@ public class BusinessFiles extends JPanel {
         zoomSlider.setBounds(10, 271, 224, 38);
         add(zoomSlider); 
         
-		listModelCardFiles  = new DefaultListModel<>();
 
+        // JTree holding current businessCard files
+		root = new DefaultMutableTreeNode("Root"); // main root
+		DefaultTreeModel treeModel = new DefaultTreeModel(root);
+        tree = new JTree(treeModel);     
+        tree.setRootVisible(false);
+   		tree.setBounds(10, 77, 224, 161);
+		tree.addTreeSelectionListener(e -> displayFile());
         
-		list = new JList<>();
-		list.setBounds(10, 77, 224, 161);
-		list.setModel(listModelCardFiles);;
-		list.addListSelectionListener(e -> displayFile());
-		add(list);
-        
+		treeScrollPane = new ScrollPane();
+		treeScrollPane.setBounds(10, 77, 224, 161);
+		treeScrollPane.add(tree);
+		
+		add(treeScrollPane);
+		
 		initiate();
 	}
 	
 	
 	private void initiate() {
-		// update business variables according to selected business		
-			listModelCardFiles.clear();
-			
+		// update business variables according to selected business				
 			if(businessCardComboBox.getItemCount()>0)
 				currentBusinessFiles = ((BasicCard)businessCardComboBox.getSelectedItem()).getBusinessFiles().getReady();
 			else
-				currentBusinessFiles = new ArrayList<>();
+				currentBusinessFiles = new HashMap<>();
+			
+		// empty current file display tree
+			root.removeAllChildren();
 			
 			if(!currentBusinessFiles.isEmpty()) {
-		        for(File f : currentBusinessFiles) {
-		        	if(f!=null)
-		        		listModelCardFiles.addElement(f);
+				for(String catagory : currentBusinessFiles.keySet()) {
+					DefaultMutableTreeNode catagoryRoot = new DefaultMutableTreeNode(catagory);
+					root.add(catagoryRoot); 
+					for(File f : currentBusinessFiles.get(catagory))		        	
+						if(f!=null)
+							catagoryRoot.add(new DefaultMutableTreeNode(f));
 		        	}
-		        list.setSelectedIndex(0);
 			}else {
 				labelFileDisplay.setIcon(null);
 				displayJframe.setTitle("");
 			}
-
+		    DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+		    treeModel.reload(root);
 	}
 	
     private void loadAndRenderFile(File file) {
@@ -227,13 +237,17 @@ public class BusinessFiles extends JPanel {
     }
     
     private void displayFile() {
-    	if(listModelCardFiles.getSize() > 0) {
-    		currentFile = list.getSelectedValue();
+    	if(!tree.isSelectionEmpty()) {
+    		DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+            Object userObject = currentNode.getUserObject();
+            if (userObject instanceof File) 
+            	currentFile = (File)userObject;
     		if(currentFile!=null) {
     			displayJframe.setTitle(currentFile.getName());
     			loadAndRenderFile(currentFile);
     		}
     	}
 	}
+
     
 }
