@@ -61,6 +61,8 @@ import java.awt.Component;
 import java.awt.BorderLayout;
 import javax.swing.BoxLayout;
 import javax.swing.SwingConstants;
+import javax.swing.JCheckBox;
+import javax.swing.JTextField;
 
 public class Factory extends JPanel {
 
@@ -88,6 +90,9 @@ public class Factory extends JPanel {
 	private JFrame parentFrame;
 	private BasicCard currentBusinessCard;
 	private double rot = 0.0;
+	private JComboBox<String> cardCatagoriesComboBox;
+	private JTextField catagoryTextField;
+	private JCheckBox chckbxNewCheckBox;
 
     
     
@@ -211,35 +216,37 @@ public class Factory extends JPanel {
 		testFrame.getActionMap().put("enterAction", enterAction);
 		
         undoButton = new CustomButton("Undo",150,50,40);
-        undoButton.addActionListener(e -> {
-            // Check if there are any files to undo
-            if (!previousFiles.isEmpty()) {
-                // Pop the last removed file from the stack
-                File lastRemovedFile = previousFiles.pop();
-
-                // Add the file back to the current business files list
-                currentBusinessFiles.add(currentIndex, lastRemovedFile);
-                
-                // Remove the file from the card
-                if(currentBusinessCard!=null)
-                	currentBusinessCard.getBusinessFiles().getReady().remove(lastRemovedFile);
-
-                // Update the display
-                currentFile = lastRemovedFile;
-                initiate();
-            }
-        });
+        undoButton.addActionListener(e -> removeFileFromCard());
         p.add(undoButton);           
 		        
-
-        
         businessCardsComboBox = new JComboBox<>();
         businessCardsComboBox.setBounds(20, 104, 245, 22);
+        businessCardsComboBox.addActionListener(e -> updateCatagories());
         add(businessCardsComboBox);
         
         JLabel lblChooseCard = new JLabel("Choose Card :");
         lblChooseCard.setBounds(20, 83, 115, 14);
         add(lblChooseCard);
+        
+        JLabel lblChooseCardCatagory_1 = new JLabel("Choose Card Catagory :");
+        lblChooseCardCatagory_1.setBounds(20, 143, 136, 14);
+        add(lblChooseCardCatagory_1);
+        
+        cardCatagoriesComboBox = new JComboBox<>();
+        cardCatagoriesComboBox.setBounds(20, 168, 245, 22);
+        add(cardCatagoriesComboBox);
+        
+        chckbxNewCheckBox = new JCheckBox("New");
+        chckbxNewCheckBox.setOpaque(false);
+        chckbxNewCheckBox.setBounds(218, 139, 47, 23);
+        chckbxNewCheckBox.addChangeListener(e -> updateView());
+        add(chckbxNewCheckBox);
+        
+        catagoryTextField = new JTextField();
+        catagoryTextField.setBounds(20, 169, 245, 20);
+        catagoryTextField.setColumns(10);
+        add(catagoryTextField);
+        catagoryTextField.setVisible(false);
 
         initiate();
 
@@ -265,6 +272,32 @@ public class Factory extends JPanel {
 		}
 	}
 	
+	private void updateCatagories() {
+		
+		if(businessCardsComboBox.getItemCount()>0) {
+			// Get current selected card
+			BasicCard card = (BasicCard)businessCardsComboBox.getSelectedItem();
+			
+			// Reset available catagories
+			cardCatagoriesComboBox.removeAllItems();
+			
+			// Add available catagories
+			for(String catagory : card.getBusinessFiles().getCatagories())
+				cardCatagoriesComboBox.addItem(catagory);
+		}
+	}
+	
+	private void updateView() {
+		if(chckbxNewCheckBox.isSelected()) {
+			catagoryTextField.setVisible(true);
+			cardCatagoriesComboBox.setVisible(false);
+		}else {
+			catagoryTextField.setVisible(false);
+			cardCatagoriesComboBox.setVisible(true);
+		}
+	
+	}
+	
 	
 	private void addFileToCard() {
 		
@@ -273,12 +306,25 @@ public class Factory extends JPanel {
 			currentBusinessCard = (BasicCard)businessCardsComboBox.getSelectedItem();
 		else
 			currentBusinessCard = null;
+		
+    	// Get selected catagory
+    	String catagory = null;
+    	if(chckbxNewCheckBox.isSelected()) 
+    		catagory = catagoryTextField.getText();
+    	else
+    		if(cardCatagoriesComboBox.getItemCount()>0)
+    			catagory = (String)cardCatagoriesComboBox.getSelectedItem();
+    	
 
 	    // Proceed only if both the current file and business card are valid and there are new files left
-        if(currentFile!=null && currentBusinessCard!=null && !currentBusinessFiles.isEmpty()) {
-        	
-            // Add the current file to the 'ready' files list of the business card
-        	currentBusinessCard.getBusinessFiles().getReady().add(currentFile);
+        if(currentFile!=null && currentBusinessCard!=null && !currentBusinessFiles.isEmpty() && catagory != null) {
+        	BusinessStorage currentBusinessCardStorage = currentBusinessCard.getBusinessFiles();
+        	if(!currentBusinessCardStorage.getCatagories().contains(catagory)) {
+        		currentBusinessCardStorage.getCatagories().add(catagory);
+        		currentBusinessCardStorage.getReady().put(catagory, new ArrayList<File>());
+        	}
+            // Add the current file to the 'ready' files list of the business card according to the selected catagory
+        	currentBusinessCardStorage.getReady().get(catagory).add(currentFile);
         	
             // Remove the file from the current business file list if index is valid
 	       	if(currentBusinessFiles.size()>=currentIndex) {
@@ -295,13 +341,36 @@ public class Factory extends JPanel {
 	       	if(currentBusinessFiles.isEmpty()) {
 	       		labelFileDisplay.setIcon(null);
 	       		labelFileDisplay.setText("NO FILES AVAILABLE");
-
-	       	}else 
-	       		initiate();   	
+	       		}else
+	       			loadAndRenderFile(currentIndex);
 	       	}
         }
 	}
 	
+	private void removeFileFromCard() {
+         // Check if there are any files to undo
+         if (!previousFiles.isEmpty()) {
+         // Pop the last removed file from the stack
+         File lastRemovedFile = previousFiles.pop();
+         // Add the file back to the current business files list
+         currentBusinessFiles.add(currentIndex, lastRemovedFile);
+                
+         // Get selected catagory
+         String catagory;
+         if(chckbxNewCheckBox.isSelected())
+         	catagory = catagoryTextField.getText();
+         else
+         	catagory = (String)cardCatagoriesComboBox.getSelectedItem();
+         
+          // Remove the file from the card
+          if(currentBusinessCard!=null)
+           	currentBusinessCard.getBusinessFiles().getReady().get(catagory).remove(lastRemovedFile);
+
+          // Update the display
+          currentFile = lastRemovedFile;
+          initiate();
+          }
+	}
 	
 	private void showNextFile() {
 		if(currentBusinessFiles!=null)
@@ -414,5 +483,4 @@ public class Factory extends JPanel {
 		}
     	
     }
-    
 }
