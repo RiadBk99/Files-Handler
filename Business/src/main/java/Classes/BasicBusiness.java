@@ -1,9 +1,15 @@
 package Classes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class BasicBusiness {
+public class BasicBusiness implements Serializable {
 
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 10L;
 	
 	private static int serial=1;		
 	private final int number;	// PK

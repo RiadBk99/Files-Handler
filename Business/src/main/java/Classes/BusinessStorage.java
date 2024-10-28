@@ -1,11 +1,17 @@
 package Classes;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class BusinessStorage {
+public class BusinessStorage implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 10L;
 	
 	private HashSet<String>catagories;
 	private HashMap<String,ArrayList<File>>ready;

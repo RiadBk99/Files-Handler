@@ -1,10 +1,16 @@
 package Classes;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class CardMovement {
+public class CardMovement implements Serializable {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 10L;
+	
 	private double money;
 	private Date date;
 	private String details;		// פרטי תנועה

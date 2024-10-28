@@ -1,10 +1,16 @@
 package Classes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class MainBusiness extends BasicBusiness{
+public class MainBusiness extends BasicBusiness implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 10L;
 	
 	private HashMap<Integer,BasicCard> businessCards;
 	

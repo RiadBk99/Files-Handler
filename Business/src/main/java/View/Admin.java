@@ -11,11 +11,10 @@ import Classes.CardMovement;
 import Classes.MainBusiness;
 import Enums.CardTypes;
 import Model.Control;
-
+import View.SerializationHelper;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import java.awt.Color;
-
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -27,6 +26,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPopupMenu;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
@@ -46,6 +47,8 @@ public class Admin extends JFrame {
 	public static MainBusiness activeBusiness;
     private JMenuItem mntmNewMenuItem_3;
     private JMenuItem mntmNewMenuItem_4;
+	private JMenuItem save;
+
 
     
 	/**
@@ -112,6 +115,19 @@ public class Admin extends JFrame {
 		mntmNewMenuItem_4 = new JMenuItem("Business Files");
 		mntmNewMenuItem_4.addActionListener(e -> openPanel(mntmNewMenuItem_4.getText()));
 		navigateMenu.add(mntmNewMenuItem_4);
+		
+		save = new JMenuItem("Save");
+		navigateMenu.add(save);
+		save.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "By clicking this button, you are saving everything and loging-out", "Thank you for using our system", JOptionPane.INFORMATION_MESSAGE);
+				dispose();
+				SerializationHelper.saveMyBusiness(Control.getInstance());
+                Admin l = new Admin();
+                l.setVisible(true);
+			}
+		});
 		
 
 	}
