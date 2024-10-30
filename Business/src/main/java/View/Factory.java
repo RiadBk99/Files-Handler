@@ -58,6 +58,7 @@ import javax.swing.JButton;
 import javax.swing.border.BevelBorder;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.BorderLayout;
 import javax.swing.BoxLayout;
 import javax.swing.SwingConstants;
@@ -93,6 +94,8 @@ public class Factory extends JPanel {
 	private JComboBox<String> cardCatagoriesComboBox;
 	private JTextField catagoryTextField;
 	private JCheckBox chckbxNewCheckBox;
+	private JButton btnNewButton;
+	private JFrame newCardJFrame;
 
     
     
@@ -139,7 +142,6 @@ public class Factory extends JPanel {
 		
 		// jframe to hold the label, more flexibilty for view and resizing
         testFrame = new JInternalFrame();
-        testFrame.setBackground(SystemColor.activeCaption);
         testFrame.setResizable(true);
         testFrame.setFrameIcon(null);
         testFrame.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -200,6 +202,8 @@ public class Factory extends JPanel {
         rotateButton.addActionListener(e -> {
                     rot += Math.PI / 4;
                     labelFileDisplay.repaint();
+                    scrollPane.revalidate();
+                    scrollPane.repaint();
                 });
                 
         p.add(rotateButton);
@@ -220,32 +224,37 @@ public class Factory extends JPanel {
         p.add(undoButton);           
 		        
         businessCardsComboBox = new JComboBox<>();
-        businessCardsComboBox.setBounds(20, 104, 245, 22);
+        businessCardsComboBox.setBounds(20, 93, 245, 22);
         businessCardsComboBox.addActionListener(e -> updateCatagories());
         add(businessCardsComboBox);
         
         JLabel lblChooseCard = new JLabel("Choose Card :");
-        lblChooseCard.setBounds(20, 83, 115, 14);
+        lblChooseCard.setBounds(20, 68, 115, 14);
         add(lblChooseCard);
         
         JLabel lblChooseCardCatagory_1 = new JLabel("Choose Card Catagory :");
-        lblChooseCardCatagory_1.setBounds(20, 143, 136, 14);
+        lblChooseCardCatagory_1.setBounds(20, 174, 175, 14);
         add(lblChooseCardCatagory_1);
         
         cardCatagoriesComboBox = new JComboBox<>();
-        cardCatagoriesComboBox.setBounds(20, 168, 245, 22);
+        cardCatagoriesComboBox.setBounds(20, 199, 245, 22);
         add(cardCatagoriesComboBox);
         
         chckbxNewCheckBox = new JCheckBox("New");
         chckbxNewCheckBox.setOpaque(false);
-        chckbxNewCheckBox.setBounds(218, 139, 47, 23);
+        chckbxNewCheckBox.setBounds(218, 170, 64, 23);
         chckbxNewCheckBox.addChangeListener(e -> updateView());
         add(chckbxNewCheckBox);
         
         catagoryTextField = new JTextField();
-        catagoryTextField.setBounds(20, 169, 245, 20);
+        catagoryTextField.setBounds(20, 199, 245, 20);
         catagoryTextField.setColumns(10);
         add(catagoryTextField);
+        
+        btnNewButton = new JButton("New Card");
+        btnNewButton.setBounds(20, 125, 100, 23);
+        btnNewButton.addActionListener(e -> addCardInternalFrame());
+        add(btnNewButton);
         catagoryTextField.setVisible(false);
 
         initiate();
@@ -424,11 +433,23 @@ public class Factory extends JPanel {
         			private static final long serialVersionUID = 1L;
         				@Override
         	            protected void paintComponent(Graphics g) {
-        	                Graphics2D g2 = (Graphics2D) g;
-        	                if (labelFileDisplay.getIcon() != null) {
-        	                g2.rotate(rot, labelFileDisplay.getIcon().getIconWidth() / 2, labelFileDisplay.getIcon().getIconWidth() / 2);
-       		                g2.drawImage(((ImageIcon) labelFileDisplay.getIcon()).getImage(), 0, 0, null);
-        	                }
+        					Graphics2D g2 = (Graphics2D) g.create();
+        			        if (getIcon() != null) {
+        			            int iconWidth = getIcon().getIconWidth();
+        			            int iconHeight = getIcon().getIconHeight();
+
+        			            // Calculate the bounds for the rotated image
+        			            double cos = Math.abs(Math.cos(rot));
+        			            double sin = Math.abs(Math.sin(rot));
+        			            int newWidth = (int) Math.floor(iconWidth * cos + iconHeight * sin);
+        			            int newHeight = (int) Math.floor(iconHeight * cos + iconWidth * sin);
+        			            
+        			            // Center the rotation
+        			            g2.translate((getWidth() - newWidth) / 2, (getHeight() - newHeight) / 2);
+        			            g2.rotate(rot, newWidth / 2.0, newHeight / 2.0);
+        			            g2.drawImage(((ImageIcon) getIcon()).getImage(), 0, 0, null);
+        			        }
+        			        g2.dispose();
        		            }
        		        };
         		scrollPane.add(labelFileDisplay);
@@ -442,6 +463,16 @@ public class Factory extends JPanel {
             }
                 		
         }
+    
+    private void addCardInternalFrame() {
+    		Admin.activeBusiness = currentBusiness;
+	    	newCardJFrame = new JFrame();
+	    	newCardJFrame.getContentPane().add(new AddBusinessCard(parentFrame));
+	    	newCardJFrame.setVisible(true);
+	    	newCardJFrame.setResizable(true);
+	    	newCardJFrame.setBounds(20,133,400,200);
+
+    }
 
     
     private void resizeImage() {
@@ -453,6 +484,8 @@ public class Factory extends JPanel {
 	        // Create a new scaled image
 	        Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
 	        labelFileDisplay.setIcon(new ImageIcon(scaledImage)); // Update JLabel with new image
+	        scrollPane.revalidate();
+	        scrollPane.repaint();
     	}
     }
 

@@ -84,7 +84,7 @@ public class AddBusinessCard extends JPanel {
 		
 		doneButton = new CustomButton("Done",150,50,40);
 		doneButton.setToolTipText("Press to add the new business");
-		doneButton.setBounds(351, 11, 89, 23);
+		doneButton.setBounds(268, 11, 89, 23);
 		doneButton.addActionListener(e -> addBusiness());
 		add(doneButton);
 		

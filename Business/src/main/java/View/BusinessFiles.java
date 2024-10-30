@@ -1,5 +1,7 @@
 package View;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.ScrollPane;
@@ -31,8 +33,10 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 
 import Classes.BasicCard;
 import Classes.MainBusiness;
+import Enums.CardTypes;
 import Model.Control;
 import ViewHelper.CustomArrowButton;
+import ViewHelper.CustomButton;
 import ViewHelper.CustomZoomSlider;
 
 import javax.imageio.ImageIO;
@@ -43,6 +47,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JButton;
 
 public class BusinessFiles extends JPanel {
 
@@ -58,11 +63,13 @@ public class BusinessFiles extends JPanel {
     private JLabel fileNameLabel;
     private ScrollPane scrollPane;
     private ScrollPane treeScrollPane;
-
+	private double rot = 0.0;
     private float zoomFactor = 1.0f; // Initial zoom factor
     private JSlider zoomSlider;
 	private JTree tree;
 	private DefaultMutableTreeNode root;
+	private JButton btnNewButton;
+	private BasicCard allCards;
 
 
 
@@ -79,8 +86,11 @@ public class BusinessFiles extends JPanel {
 		// Create combobox with active business's cards
         businessCardComboBox = new JComboBox<>();
         businessCardComboBox.setBounds(83, 24, 151, 22);
-        
+		allCards = new BasicCard(0,"All Cards",0,CardTypes.Client);
+
 		if(currentBusiness!=null) {
+			businessCardComboBox.addItem(allCards);
+
 			for(BasicCard card : currentBusiness.getBusinessCards().values()) {
 				businessCardComboBox.addItem(card);
 			}
@@ -138,31 +148,62 @@ public class BusinessFiles extends JPanel {
         zoomSlider.addChangeListener(e ->{
             zoomSlider.setToolTipText(String.valueOf(zoomSlider.getValue()));
         });
-        zoomSlider.setBounds(10, 271, 224, 38);
+        zoomSlider.setBounds(10, 66, 181, 38);
         add(zoomSlider); 
         
 
         // JTree holding current businessCard files
 		root = new DefaultMutableTreeNode("Root"); // main root
 		DefaultTreeModel treeModel = new DefaultTreeModel(root);
+        
         tree = new JTree(treeModel);     
         tree.setRootVisible(false);
    		tree.setBounds(10, 77, 224, 161);
 		tree.addTreeSelectionListener(e -> displayFile());
-        
 		treeScrollPane = new ScrollPane();
-		treeScrollPane.setBounds(10, 77, 224, 161);
+		treeScrollPane.setBounds(10, 134, 224, 288);
 		treeScrollPane.add(tree);
-		
 		add(treeScrollPane);
+
+		
+		btnNewButton = new CustomButton("Rotate",150,50,40);
+		btnNewButton.setBounds(201, 66, 65, 38);
+		add(btnNewButton);
+		btnNewButton.addActionListener(e -> {
+            rot += Math.PI / 4;
+            labelFileDisplay.repaint();
+            scrollPane.revalidate();
+            scrollPane.repaint();
+        });
+        
+		tree.addTreeSelectionListener(e -> displayFile());
 		
 		initiate();
 	}
 	
 	
 	private void initiate() {
+		
+		if(businessCardComboBox.getSelectedItem()==allCards) {
+			root.removeAllChildren();
+			for(BasicCard card : currentBusiness.getBusinessCards().values()) {
+				currentBusinessFiles = card.getBusinessFiles().getReady();
+				if(!currentBusinessFiles.isEmpty()) {
+					for(String catagory : currentBusinessFiles.keySet()) {
+						DefaultMutableTreeNode catagoryRoot = new DefaultMutableTreeNode(catagory);
+						root.add(catagoryRoot); 
+						for(File f : currentBusinessFiles.get(catagory))		        	
+							if(f!=null)
+								catagoryRoot.add(new DefaultMutableTreeNode(f));
+			        	}
+				}
+			}
+		    DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+		    treeModel.reload(root);
+			return;
+		}
 		// update business variables according to selected business				
-			if(businessCardComboBox.getItemCount()>0)
+			if(businessCardComboBox.getItemCount()>1)
 				currentBusinessFiles = ((BasicCard)businessCardComboBox.getSelectedItem()).getBusinessFiles().getReady();
 			else
 				currentBusinessFiles = new HashMap<>();
@@ -212,11 +253,33 @@ public class BusinessFiles extends JPanel {
     		int width = originalImage.getWidth();
     		int height = originalImage.getHeight();
     		labelFileDisplay.setBounds(197, 35, width, height);
-    		labelFileDisplay.setIcon(scaledIcon);
+    		labelFileDisplay = new JLabel(null, scaledIcon, JLabel.CENTER) {
+    			private static final long serialVersionUID = 1L;
+    				@Override
+    	            protected void paintComponent(Graphics g) {
+    					Graphics2D g2 = (Graphics2D) g.create();
+    			        if (getIcon() != null) {
+    			            int iconWidth = getIcon().getIconWidth();
+    			            int iconHeight = getIcon().getIconHeight();
+
+    			            // Calculate the bounds for the rotated image
+    			            double cos = Math.abs(Math.cos(rot));
+    			            double sin = Math.abs(Math.sin(rot));
+    			            int newWidth = (int) Math.floor(iconWidth * cos + iconHeight * sin);
+    			            int newHeight = (int) Math.floor(iconHeight * cos + iconWidth * sin);
+    			            
+    			            // Center the rotation
+    			            g2.translate((getWidth() - newWidth) / 2, (getHeight() - newHeight) / 2);
+    			            g2.rotate(rot, newWidth / 2.0, newHeight / 2.0);
+    			            g2.drawImage(((ImageIcon) getIcon()).getImage(), 0, 0, null);
+    			        }
+    			        g2.dispose();
+   		            }
+   		        };
+    		scrollPane.add(labelFileDisplay);
             resizeImage();
             scrollPane.repaint();
             scrollPane.revalidate();
-            
             // Close the document to free resources
         } catch (IOException e) {
             e.printStackTrace();
@@ -248,6 +311,4 @@ public class BusinessFiles extends JPanel {
     		}
     	}
 	}
-
-    
 }
