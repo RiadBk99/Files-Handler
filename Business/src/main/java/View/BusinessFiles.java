@@ -32,6 +32,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import Classes.BasicCard;
+import Classes.CustomFile;
 import Classes.MainBusiness;
 import Enums.CardTypes;
 import Model.Control;
@@ -197,8 +198,11 @@ public class BusinessFiles extends JPanel {
 					root.add(catagoryRoot);
 		// Add each catagory files
 					for(File f : currentBusiness.getBusinessReadyFilesByCatagory().get(catagory))
-						if(f!=null)
-							catagoryRoot.add(new DefaultMutableTreeNode(f));
+						if(f!=null) {
+							CustomFile customF = new CustomFile(f);
+							catagoryRoot.add(new DefaultMutableTreeNode(customF));
+						}
+							
 				}
 			}
 			
@@ -217,9 +221,11 @@ public class BusinessFiles extends JPanel {
 					root.add(catagoryRoot); 
 		// Add all available files related to the catagory
 					for(File f : currentCard.getBusinessFiles().getCardReadyFilesByCatagory().get(catagory))		        	
-						if(f!=null)
-							catagoryRoot.add(new DefaultMutableTreeNode(f));
-		        	}
+						if(f!=null) {
+							CustomFile customF = new CustomFile(f);
+							catagoryRoot.add(new DefaultMutableTreeNode(customF));
+						}
+				}
 		    DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 		    treeModel.reload(root);
 		    return;
