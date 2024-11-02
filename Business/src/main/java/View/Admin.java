@@ -159,6 +159,11 @@ public class Admin extends JFrame {
 	            p = new AddBusiness(this);
 	            break;
 	        case "Business Files":
+	        	if(activeBusiness==null) {
+	    			Admin.showMsg(this,"Please select a business first", "Error",JOptionPane.ERROR_MESSAGE);
+	    			p = new MainPage(this);
+	        		break;
+	        	}
 	            p = new BusinessFiles(this);
 	            break;
 	    }

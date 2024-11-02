@@ -84,10 +84,11 @@ public class Factory extends JPanel {
     private BasicArrowButton rightArrowButton;
     private BasicArrowButton leftArrowButton_1;
     private Stack<File>previousFiles;
+    private Stack<BasicCard>previousFilesCards;
+    private Stack<String>previousFileCatagory;
     private JLabel fileNameLabel;
     private JLabel fileNameLabel_2;
     private JInternalFrame testFrame;
-    private JComboBox<BasicCard> businessCardsComboBox;
 	private JFrame parentFrame;
 	private BasicCard currentBusinessCard;
 	private double rot = 0.0;
@@ -96,6 +97,7 @@ public class Factory extends JPanel {
 	private JCheckBox chckbxNewCheckBox;
 	private JButton btnNewButton;
 	private JFrame newCardJFrame;
+	private JComboBox<BasicCard> businessCardsComboBox;
 
     
     
@@ -110,8 +112,9 @@ public class Factory extends JPanel {
 		setBackground(SystemColor.activeCaption);
 		setLayout(null);
 		previousFiles = new Stack<>();
+		previousFilesCards = new Stack<>();
+		previousFileCatagory = new Stack<>();
 
-		
 		JLabel businessLabel = new JLabel("Choose Business :");
 		businessLabel.setBounds(20, 10, 115, 14);
 		add(businessLabel);
@@ -221,11 +224,10 @@ public class Factory extends JPanel {
 		
         undoButton = new CustomButton("Undo",150,50,40);
         undoButton.addActionListener(e -> removeFileFromCard());
-        p.add(undoButton);           
-		        
+        p.add(undoButton);
+        
         businessCardsComboBox = new JComboBox<>();
         businessCardsComboBox.setBounds(20, 93, 245, 22);
-        businessCardsComboBox.addActionListener(e -> updateCatagories());
         add(businessCardsComboBox);
         
         JLabel lblChooseCard = new JLabel("Choose Card :");
@@ -279,21 +281,17 @@ public class Factory extends JPanel {
 			}
 			else labelFileDisplay.setText("NO FILES AVIALABLE");
 		}
+		updateCatagories();
+
 	}
 	
 	private void updateCatagories() {
+		cardCatagoriesComboBox.removeAllItems();
 		
-		if(businessCardsComboBox.getItemCount()>0) {
-			// Get current selected card
-			BasicCard card = (BasicCard)businessCardsComboBox.getSelectedItem();
-			
-			// Reset available catagories
-			cardCatagoriesComboBox.removeAllItems();
-			
-			// Add available catagories
-			for(String catagory : card.getBusinessFiles().getCatagories())
+		// Add available catagories
+		if(currentBusiness!=null)
+			for(String catagory : currentBusiness.getCatagories())
 				cardCatagoriesComboBox.addItem(catagory);
-		}
 	}
 	
 	private void updateView() {
@@ -318,8 +316,13 @@ public class Factory extends JPanel {
 		
     	// Get selected catagory
     	String catagory = null;
-    	if(chckbxNewCheckBox.isSelected()) 
+    	if(chckbxNewCheckBox.isSelected()) { 
     		catagory = catagoryTextField.getText();
+    		if(!currentBusiness.getCatagories().contains(catagory))
+    			currentBusiness.getCatagories().add(catagory);
+    		updateCatagories();
+
+    	}
     	else
     		if(cardCatagoriesComboBox.getItemCount()>0)
     			catagory = (String)cardCatagoriesComboBox.getSelectedItem();
@@ -327,26 +330,24 @@ public class Factory extends JPanel {
 
 	    // Proceed only if both the current file and business card are valid and there are new files left
         if(currentFile!=null && currentBusinessCard!=null && !currentBusinessFiles.isEmpty() && catagory != null) {
-        	BusinessStorage currentBusinessCardStorage = currentBusinessCard.getBusinessFiles();
-        	if(!currentBusinessCardStorage.getCatagories().contains(catagory)) {
-        		currentBusinessCardStorage.getCatagories().add(catagory);
-        		currentBusinessCardStorage.getReady().put(catagory, new ArrayList<File>());
-        	}
-            // Add the current file to the 'ready' files list of the business card according to the selected catagory
-        	currentBusinessCardStorage.getReady().get(catagory).add(currentFile);
+        	currentBusiness.addCardFile(catagory, currentFile);
+        	currentBusinessCard.getBusinessFiles().addCardFile(catagory, currentFile);
         	
-            // Remove the file from the current business file list if index is valid
-	       	if(currentBusinessFiles.size()>=currentIndex) {
-	       		currentBusinessFiles.remove(currentIndex);
+        // Remove the file from the current business file list if index is valid
+	    if(currentBusinessFiles.size()>=currentIndex) {
+	      	currentBusinessFiles.remove(currentIndex);
 	       	
-	        // Push the current file to the previousFiles stack
-	       	previousFiles.push(currentFile);
+	    // Push the current file to the previousFiles stack
+	    previousFiles.push(currentFile);
+	    previousFilesCards.push(currentBusinessCard);
+	    previousFileCatagory.push(catagory);
+
 	       	
-            if (currentIndex >= currentBusinessFiles.size()) {
-                currentIndex = 0; // Reset index to the start if end is reached
+        if (currentIndex >= currentBusinessFiles.size()) {
+            currentIndex = 0; // Reset index to the start if end is reached
             }
 	       	
-	        // If the current business files are empty, clear the file display icon
+	    // If the current business files are empty, clear the file display icon
 	       	if(currentBusinessFiles.isEmpty()) {
 	       		labelFileDisplay.setIcon(null);
 	       		labelFileDisplay.setText("NO FILES AVAILABLE");
@@ -361,24 +362,14 @@ public class Factory extends JPanel {
          if (!previousFiles.isEmpty()) {
          // Pop the last removed file from the stack
          File lastRemovedFile = previousFiles.pop();
-         // Add the file back to the current business files list
-         currentBusinessFiles.add(currentIndex, lastRemovedFile);
-                
-         // Get selected catagory
-         String catagory;
-         if(chckbxNewCheckBox.isSelected())
-         	catagory = catagoryTextField.getText();
-         else
-         	catagory = (String)cardCatagoriesComboBox.getSelectedItem();
+         BasicCard lastCard = previousFilesCards.pop();
+         String catagory = previousFileCatagory.pop();
          
-          // Remove the file from the card
-          if(currentBusinessCard!=null)
-           	currentBusinessCard.getBusinessFiles().getReady().get(catagory).remove(lastRemovedFile);
-
-          // Update the display
-          currentFile = lastRemovedFile;
-          initiate();
-          }
+         currentBusiness.removeCardFile(catagory, lastRemovedFile, lastCard.getNumber());
+         // Update the display
+         currentFile = lastRemovedFile;
+         initiate();
+         }
 	}
 	
 	private void showNextFile() {

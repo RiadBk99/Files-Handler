@@ -2,13 +2,11 @@ package Classes;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class BasicBusiness implements Serializable {
 
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 10L;
 	
 	private static int serial=1;		
@@ -57,6 +55,7 @@ public class BasicBusiness implements Serializable {
 		return this.getNumber() + " - " + this.getName();
 		
 	}
+
 	
 
 

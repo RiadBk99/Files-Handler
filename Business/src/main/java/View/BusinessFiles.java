@@ -55,8 +55,9 @@ public class BusinessFiles extends JPanel {
 	private JFrame parentFrame;
     private JComboBox<BasicCard> businessCardComboBox;
     private MainBusiness currentBusiness = Admin.activeBusiness;
+    private BasicCard currentCard;
     private File currentFile; 
-    private HashMap<String,ArrayList<File>> currentBusinessFiles;
+    private ArrayList<File> currentCardfiles;
     private JInternalFrame displayJframe;
     private JLabel labelFileDisplay;
     private BufferedImage originalImage;
@@ -95,13 +96,13 @@ public class BusinessFiles extends JPanel {
 				businessCardComboBox.addItem(card);
 			}
 			if(businessCardComboBox.getItemCount()>0)
-				currentBusinessFiles = ((BasicCard)businessCardComboBox.getSelectedItem()).getBusinessFiles().getReady();
+				currentCardfiles = ((BasicCard)businessCardComboBox.getSelectedItem()).getBusinessFiles().getReady();
 			else
-				currentBusinessFiles = new HashMap<>();
+				currentCardfiles = new ArrayList<>();
 		}
         add(businessCardComboBox);   
         
-        // Update tree files according to chosing businessCard
+        // Update tree files according to chosen businessCard
 		businessCardComboBox.addActionListener(e -> initiate());
 
 		
@@ -165,7 +166,6 @@ public class BusinessFiles extends JPanel {
 		treeScrollPane.add(tree);
 		add(treeScrollPane);
 
-		
 		btnNewButton = new CustomButton("Rotate",150,50,40);
 		btnNewButton.setBounds(201, 66, 65, 38);
 		add(btnNewButton);
@@ -178,53 +178,57 @@ public class BusinessFiles extends JPanel {
         
 		tree.addTreeSelectionListener(e -> displayFile());
 		
+		
+				
 		initiate();
 	}
 	
 	
 	private void initiate() {
 		
-		if(businessCardComboBox.getSelectedItem()==allCards) {
+		currentCard = (BasicCard) businessCardComboBox.getSelectedItem();
+		// Start view with all available files by catagories in the business
+		if(currentCard.getNumber()==0) {
 			root.removeAllChildren();
-			for(BasicCard card : currentBusiness.getBusinessCards().values()) {
-				currentBusinessFiles = card.getBusinessFiles().getReady();
-				if(!currentBusinessFiles.isEmpty()) {
-					for(String catagory : currentBusinessFiles.keySet()) {
-						DefaultMutableTreeNode catagoryRoot = new DefaultMutableTreeNode(catagory);
-						root.add(catagoryRoot); 
-						for(File f : currentBusinessFiles.get(catagory))		        	
-							if(f!=null)
-								catagoryRoot.add(new DefaultMutableTreeNode(f));
-			        	}
+		// Go through all available catagories
+			for(String catagory : currentBusiness.getBusinessReadyFilesByCatagory().keySet()) {
+				if(catagory!=null) {
+					DefaultMutableTreeNode catagoryRoot = new DefaultMutableTreeNode(catagory);
+					root.add(catagoryRoot);
+		// Add each catagory files
+					for(File f : currentBusiness.getBusinessReadyFilesByCatagory().get(catagory))
+						if(f!=null)
+							catagoryRoot.add(new DefaultMutableTreeNode(f));
 				}
 			}
+			
 		    DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 		    treeModel.reload(root);
 			return;
 		}
-		// update business variables according to selected business				
-			if(businessCardComboBox.getItemCount()>1)
-				currentBusinessFiles = ((BasicCard)businessCardComboBox.getSelectedItem()).getBusinessFiles().getReady();
-			else
-				currentBusinessFiles = new HashMap<>();
-			
-		// empty current file display tree
+		if(currentCard.getNumber()!=0) {
+		// If the user selected a specific card, update files and assign them by catagories
 			root.removeAllChildren();
 			
-			if(!currentBusinessFiles.isEmpty()) {
-				for(String catagory : currentBusinessFiles.keySet()) {
+		// Add all available catagories
+			for(String catagory : currentCard.getBusinessFiles().getCardReadyFilesByCatagory().keySet()) {
+				if(catagory!=null) {
 					DefaultMutableTreeNode catagoryRoot = new DefaultMutableTreeNode(catagory);
 					root.add(catagoryRoot); 
-					for(File f : currentBusinessFiles.get(catagory))		        	
+		// Add all available files related to the catagory
+					for(File f : currentCard.getBusinessFiles().getCardReadyFilesByCatagory().get(catagory))		        	
 						if(f!=null)
 							catagoryRoot.add(new DefaultMutableTreeNode(f));
 		        	}
-			}else {
-				labelFileDisplay.setIcon(null);
-				displayJframe.setTitle("");
-			}
 		    DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 		    treeModel.reload(root);
+		    return;
+			}
+		}
+		//	Last possible scenario
+		
+		labelFileDisplay.setIcon(null);
+		displayJframe.setTitle("");
 	}
 	
     private void loadAndRenderFile(File file) {

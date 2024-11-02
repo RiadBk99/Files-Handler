@@ -4,15 +4,14 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 
 import Enums.CardTypes;
 
 public class BasicCard extends BasicBusiness implements Serializable{
 	
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 10L;
 	
 	private ArrayList<CardMovement> allMovements;
@@ -42,6 +41,7 @@ public class BasicCard extends BasicBusiness implements Serializable{
 		return this.getNumber() + " - " + this.getName();
 		
 	}
+
 	
 
 
