@@ -47,6 +47,8 @@ public class Admin extends JFrame {
 	public static MainBusiness activeBusiness;
     private JMenuItem mntmNewMenuItem_3;
     private JMenuItem mntmNewMenuItem_4;
+    private JMenuItem mntmNewMenuItem_5;
+
 	private JMenuItem save;
 
 
@@ -116,6 +118,10 @@ public class Admin extends JFrame {
 		mntmNewMenuItem_4.addActionListener(e -> openPanel(mntmNewMenuItem_4.getText()));
 		navigateMenu.add(mntmNewMenuItem_4);
 		
+		mntmNewMenuItem_5 = new JMenuItem("Business Cards Index");
+		mntmNewMenuItem_5.addActionListener(e -> openPanel(mntmNewMenuItem_5.getText()));
+		navigateMenu.add(mntmNewMenuItem_5);
+		
 		save = new JMenuItem("Save");
 		navigateMenu.add(save);
 		save.addActionListener(new ActionListener() {
@@ -165,6 +171,14 @@ public class Admin extends JFrame {
 	        		break;
 	        	}
 	            p = new BusinessFiles(this);
+	            break;
+	        case "Business Cards Index":
+	        	if(activeBusiness==null) {
+	    			Admin.showMsg(this,"Please select a business first", "Error",JOptionPane.ERROR_MESSAGE);
+	    			p = new MainPage(this);
+	        		break;
+	        	}
+	            p = new BusinessCardsIndex(this);
 	            break;
 	    }
 

@@ -45,6 +45,16 @@ public class MainBusiness extends BasicBusiness implements Serializable{
 		return (businessCards.containsKey(card.getNumber()));
 	}
 	
+	public boolean removeBusinessCard(BasicCard card) {
+		
+		if(!businessCards.containsKey(card.getNumber()))
+			return false;
+		else
+			businessCards.remove(card.getNumber());
+		
+		return (!businessCards.containsKey(card.getNumber()));
+	}
+	
 	public boolean addCardFile(String catagory, File file) {
 		// Check if current mainbusiness has the catagory, if so add the file to the current assigned array
 		if(businessReadyFilesByCatagory.containsKey(catagory))
