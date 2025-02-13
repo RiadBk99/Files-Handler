@@ -12,4 +12,4 @@ all files proccessed are moved the project database and can be viewed at all tim
 ***INCOMING MAJOR UPDATE***
 
 Working on making the program work as a client to a main server, all files
-will be held in the main server only and accessable only through maintained accounts.
+will be held in the main server and only accessable through created accounts.
